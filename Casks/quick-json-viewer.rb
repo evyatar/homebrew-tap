@@ -7,17 +7,17 @@ cask "quick-json-viewer" do
   desc "Fast, native macOS JSON viewer"
   homepage "https://github.com/evyatar/quick-json-viewer"
 
-  app "quick-json-viewer.app"
+  app "quick-json-viewer.app", target: "Quick JSON Viewer.app"
 
   postflight do
     # 1. Strip the quarantine attribute
     system_command "/usr/bin/xattr",
-                   args: ["-rd", "com.apple.quarantine", "#{appdir}/quick-json-viewer.app"],
+                   args: ["-rd", "com.apple.quarantine", "#{appdir}/Quick JSON Viewer.app"],
                    sudo: false
 
     # 2. Force an Ad-Hoc code-signature
     system_command "/usr/bin/codesign",
-                   args: ["--force", "--deep", "--sign", "-", "#{appdir}/quick-json-viewer.app"],
+                   args: ["--force", "--deep", "--sign", "-", "#{appdir}/Quick JSON Viewer.app"],
                    sudo: false
   end
   
