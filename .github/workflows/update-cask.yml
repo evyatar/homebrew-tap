@@ -1,0 +1,57 @@
+name: Update cask
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version, e.g. 1.0.8 (leading v optional)"
+        required: true
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Resolve version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            RAW="${{ inputs.version }}"
+          else
+            RAW="${GITHUB_REF_NAME}"
+          fi
+          VERSION="${RAW#v}"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "Resolved version: $VERSION"
+
+      - name: Download release asset and compute sha256
+        run: |
+          URL="https://github.com/evyatar/quick-json-viewer/releases/download/v${VERSION}/quick-json-viewer-v${VERSION}.zip"
+          echo "Downloading $URL"
+          curl -fL --retry 3 -o release.zip "$URL"
+          SHA256=$(sha256sum release.zip | awk '{print $1}')
+          echo "SHA256=$SHA256" >> "$GITHUB_ENV"
+          echo "sha256: $SHA256"
+
+      - name: Update cask and commit
+        run: |
+          FILE="Casks/quick-json-viewer.rb"
+          sed -i -E "s/^  version \".*\"/  version \"${VERSION}\"/" "$FILE"
+          sed -i -E "s/^  sha256 \".*\"/  sha256 \"${SHA256}\"/" "$FILE"
+          rm -f release.zip
+          if git diff --quiet; then
+            echo "Cask already up to date"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -am "chore: release v${VERSION}"
+            git push origin main
+          fi
