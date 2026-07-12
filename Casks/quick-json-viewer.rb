@@ -1,6 +1,6 @@
 cask "quick-json-viewer" do
-  version "1.1.1"
-  sha256 "dcf38bab88694733754e18e1eb006d552348dac64b7d064d9ef9f4fd3a2f0d76"
+  version "1.1.2"
+  sha256 "348ade38c2dab73edd9e47ef84f0600fd6b42ea6c9655385ac2de5022ca4cea9"
 
   url "https://github.com/evyatar/quick-json-viewer/releases/download/v#{version}/quick-json-viewer-v#{version}.zip"
   name "Quick JSON Viewer"
